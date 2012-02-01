@@ -761,7 +761,7 @@ void CGameContext::OnClientEnter(int ClientID)
 		str_format(aBuf, sizeof(aBuf), "'%s' entered and joined the %s", Server()->ClientName(ClientID), m_pController->GetTeamName(m_apPlayers[ClientID]->GetTeam()));
 		SendChat(-1, CGameContext::CHAT_ALL, aBuf);
 //PPRace+
-		SendChatTarget(ClientID, "PPRace   site: http://pprace.teeworlds.org/");
+		SendChatTarget(ClientID, "PPRace   site: http://pprace.teeworlds.cz/");
 		SendChatTarget(ClientID, "Based on DDRace Mod. Version: " GAME_VERSION);
 //PPRace-
 		SendChatTarget(ClientID, "please visit http://DDRace.info or say /info for more info");

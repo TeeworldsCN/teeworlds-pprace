@@ -42,7 +42,7 @@ void CGameContext::ConInfo(IConsole::IResult *pResult, void *pUserData)
 	CGameContext *pSelf = (CGameContext *) pUserData;
 //PPRace+
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info",
-			"PPRace   site: http://pprace.teeworlds.org/");
+			"PPRace   site: http://pprace.teeworlds.cz/");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info",
 			"Based on DDRace Mod. Version: " GAME_VERSION);
 /*
