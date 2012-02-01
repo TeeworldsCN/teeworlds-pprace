@@ -113,27 +113,96 @@ void CGameContext::HandlePortals(CCharacter *Character)
     if(!C)
       continue;
     
+    //Isn't in same team?
     if(C->Team() != Character->Team())
       continue;
       
+    //Has not active two portals?
+    if(!C->m_apPortals[0]->m_Active || !C->m_apPortals[1]->m_Active)
+      continue;
+        
     for(int i2 = 0; i2 < 2; i2++)
     {
-      if(!C->m_apPortals[i2]->m_Active)
+      //Collision with Portal
+      //vec2 v1;
+      //vec2 v2;
+      //v1 = v2 = Character->m_Pos;
+      //if(!Collision()->IntersectLine(C->m_apPortals[i2]->m_From, C->m_apPortals[i2]->m_To, &v1, 0, true))
+      if(!C->m_apPortals[i2]->IsIn(Character->m_Pos))
+      {
+        //If Tee is not in last portal, cancel last portal.
+        if(Character->m_pLastPortal == C->m_apPortals[i2])
+          Character->m_pLastPortal = 0;
+          
+        continue;
+      }
+        
+      if(Character->m_pLastPortal == C->m_apPortals[i2])
         continue;
         
-      //Collision with Portal
-      vec2 v1;
-      vec2 v2;
-      v1 = v2 = Character->m_Pos;
-      if(!Collision()->IntersectLine(C->m_apPortals[i2]->m_From, C->m_apPortals[i2]->m_To, &v1, &v2, true))
-        return;
-        
-      dbg_msg("pprace", "HM");
-      if(Character->m_pLastPortal == C->m_apPortals[i2])
-        return;
-        
+      vec2 v = (Character->Core()->m_Pos)-(C->m_apPortals[i2]->m_Pos);
       Character->m_pLastPortal = C->m_apPortals[i2]->m_pPair;
-      Character->m_Pos = C->m_apPortals[i2]->m_pPair->m_Pos;
+      Character->Core()->m_Pos = C->m_apPortals[i2]->m_pPair->m_Pos;
+      
+      float f = 0;
+      
+      //"Normalize" input vector
+      switch(C->m_apPortals[i2]->m_Direction)
+      {
+        //case PORTAL_LEFT: break;
+        
+        case PORTAL_DOWN:
+          v = v*-1;
+        case PORTAL_UP:
+          f = v.y;
+          v.y = v.x;
+          v.x = f;
+          break;
+          
+        case PORTAL_RIGHT:
+          v = v*-1;
+          break;
+      }
+      
+      //"Normalize" output vector
+      switch(C->m_apPortals[i2]->m_pPair->m_Direction)
+      {
+        //case PORTAL_LEFT: break;
+        
+        case PORTAL_DOWN:
+          v = v*-1;
+        case PORTAL_UP:
+          f = v.y;
+          v.y = v.x;
+          v.x = f;
+          break;
+          
+        case PORTAL_RIGHT:
+          v = v*-1;
+          break;
+      }
+      
+      //Apply
+      if(C->m_apPortals[i2]->IsHorizontal() == C->m_apPortals[i2]->m_pPair->IsHorizontal())
+      {
+        //Flip if is same direction
+        float f = (C->m_apPortals[i2]->m_Direction == C->m_apPortals[i2]->m_pPair->m_Direction) ? -1 : +1;
+        
+        if(C->m_apPortals[i2]->IsHorizontal())
+        {
+          Character->Core()->m_Pos.x -= v.x;
+          Character->Core()->m_Pos.y += v.y*f;
+        }
+        else
+        {
+          Character->Core()->m_Pos.x += v.x*f;
+          Character->Core()->m_Pos.y -= v.y;
+        }
+      }
+      else
+        Character->Core()->m_Pos = (Character->Core()->m_Pos)+v;
+
+      //Ported, done.
       return;
     }
   }

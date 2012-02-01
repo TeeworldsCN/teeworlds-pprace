@@ -1,4 +1,5 @@
-/* (c) Shereef Marzouk. See "licence DDRace.txt" and the readme.txt in the root of the distribution for more information. */
+/* Teeworlds.cz based on code by
+ * (c) Shereef Marzouk. See "licence DDRace.txt" and the readme.txt in the root of the distribution for more information. */
 #include <game/generated/protocol.h>
 #include <game/server/gamecontext.h>
 #include <engine/shared/config.h>
@@ -19,6 +20,30 @@ CPortal::CPortal(CGameWorld *pGameWorld, vec2 Pos, int Direction, int Owner) :
 	GameWorld()->InsertEntity(this);
 }
 
+bool CPortal::IsIn(vec2 Pos)
+{
+  //34 - based on PhysSize of Tee (48-14)
+  if(m_Direction == PORTAL_UP || m_Direction == PORTAL_DOWN)
+  {
+    if(absolute(Pos.x-m_Pos.x) >= 34)
+      return false;
+    
+    return absolute(Pos.y-m_Pos.y) < 32;
+  }
+  else
+  {
+    if(absolute(Pos.y-m_Pos.y) >= 34)
+      return false;
+      
+    return absolute(Pos.x-m_Pos.x) < 32;
+  }
+}
+
+bool CPortal::IsHorizontal()
+{
+  return (m_Direction == PORTAL_UP || m_Direction == PORTAL_DOWN);
+}
+
 int CPortal::Team()
 {
   CCharacter *OwnerChar = 0;
@@ -37,8 +62,10 @@ void CPortal::Move(vec2 Pos)
 	
 	bool h = (m_Direction == PORTAL_UP || m_Direction == PORTAL_DOWN);
 	m_From.x = m_To.x = (h ? m_Pos.x-16 : m_Pos.x);
-	m_From.y = m_To.y = (h ? m_Pos.y : m_Pos.y-16);
-
+  m_From.y = m_To.y = (h ? m_Pos.y : m_Pos.y-16);
+  m_Pos.x -= 16;
+  m_Pos.y -= 16;
+  
   //Move to border
   if(m_Direction == PORTAL_UP)
   {
