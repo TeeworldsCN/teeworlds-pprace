@@ -63,6 +63,10 @@ public:
 	int m_LastEmote;
 	int m_LastKill;
 
+//PPRace+
+  int m_LaserMode;
+//PPRace-
+
 	// TODO: clean this up
 	struct
 	{

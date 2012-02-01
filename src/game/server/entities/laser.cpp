@@ -74,6 +74,33 @@ void CLaser::DoBounce()
 	}
 	m_PrevPos = m_Pos;
 	vec2 To = m_Pos + m_Dir * m_Energy;
+/* TODO!!!
+//PPRace+
+  CCharacter * OwnerChar = 0;
+	if(m_Owner >= 0)
+		OwnerChar = GameServer()->GetPlayerChar(m_Owner);
+  //Is known owner of this laser?
+  if(OwnerChar)
+  {
+    CPlayer *Owner = OwnerChar->GetPlayer();
+    //Has Player active Laser in Portal mode?
+    if(Owner->m_LaserMode > 0)
+    {
+	    //Starting tile for Portal
+		  vec2 PortalTile;
+		  PortalTile.x = round(To.x);
+      PortalTile.y = round(To.y);
+		  int CurrentIndex = GameServer()->Collision()->GetMapIndex(PortalTile);
+		  //Is No-Portals tile?
+		  if(GameServer()->Collision()->IsNoPortals(CurrentIndex))
+		  {
+		    //Stop this laser
+        m_Energy = 0;
+		  }
+		}
+  }
+//PPRace-	
+*/
 	vec2 Coltile;
 
 	int Res;
@@ -83,6 +110,56 @@ void CLaser::DoBounce()
 	{
 		if(!HitCharacter(m_Pos, To))
 		{
+		//PPRace+
+		  CCharacter *OwnerChar = 0;
+    	if(m_Owner >= 0)
+    		OwnerChar = GameServer()->GetPlayerChar(m_Owner);
+      //Is known owner of this laser?
+		  if(OwnerChar)
+		  {
+		    CPlayer *Owner = OwnerChar->GetPlayer();
+		    //Has Player active Laser in Portal mode?
+		    if(Owner->m_LaserMode > 0)
+		    {
+  		    //Starting tile for Portal
+    		  vec2 PortalTile;
+    		  PortalTile.x = round(Coltile.x);
+          PortalTile.y = round(Coltile.y);
+    		  int CurrentIndex = GameServer()->Collision()->GetMapIndex(PortalTile);
+    		  PortalTile = GameServer()->Collision()->GetPos(CurrentIndex);
+    		  //Is Portal-able tile?
+    		  if(GameServer()->Collision()->IsPortalable(CurrentIndex))
+    		  {
+    		    dbg_msg("pprace", "PORTAL: %d x %d", PortalTile.x, PortalTile.y);
+  		    
+            //Get Direction TODO!!!
+            vec2 Delta = PortalTile;
+            Delta.x -= Coltile.x;
+            Delta.y -= Coltile.y;
+            int Direction = 0;
+            if(absolute(Delta.x) < absolute(Delta.y))
+            {
+              Direction = (Delta.y > 0) ? PORTAL_UP : PORTAL_DOWN;
+            }
+            else
+            {
+              Direction = (Delta.x > 0) ? PORTAL_LEFT : PORTAL_RIGHT;
+            }
+            
+            //Is Portal Place?
+            if(GameServer()->IsPortalPlace(CurrentIndex, Direction, OwnerChar->Team()))
+            {
+      		    //Create Portal
+      		    OwnerChar->CreatePortal(PortalTile, Direction);
+            }
+        
+    		    //Stop this laser
+            m_Energy = 0;
+    		  }
+    		}
+		  }
+		//PPRace-	
+		
 			// intersected
 			m_From = m_Pos;
 			m_Pos = To;
@@ -94,7 +171,7 @@ void CLaser::DoBounce()
 			if(Res == -1)
 			{
 				f = GameServer()->Collision()->GetTile(round(Coltile.x), round(Coltile.y));
-				GameServer()->Collision()->SetCollisionAt(round(Coltile.x), round(Coltile.y), CCollision::COLFLAG_SOLID);
+				GameServer()->Collision()->SetCollisionAt(round(Coltile.x), round(Coltile.y), CCollision::COLFLAG_SOLID);	
 			}
 			GameServer()->Collision()->MovePoint(&TempPos, &TempDir, 1.0f, 0);
 			if(Res == -1)

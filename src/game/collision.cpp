@@ -14,6 +14,10 @@
 
 #include <engine/shared/config.h>
 
+//PPRace+
+#include <game/server/entities/portal.h>
+//PPRace-
+
 CCollision::CCollision()
 {
 	m_pTiles = 0;
@@ -550,6 +554,10 @@ bool CCollision::TileExists(int Index)
 		return true;
 	if(m_pSwitch && m_pSwitch[Index].m_Type)
 		return true;
+//PPRace+
+  if(m_pFront && m_pFront[Index].m_Index >= TILE_PPRACE_START && m_pFront[Index].m_Index <= TILE_PPRACE_END)
+    return true;
+//PPRace-
 	return TileExistsNext(Index);
 }
 
@@ -962,3 +970,79 @@ int CCollision::IsFCheckpoint(int Index)
 		return z-35;
 	return -1;
 }
+
+//PPRace+
+int CCollision::IsPortalPlace(int Index, int Direction)
+{
+  if(!IsPortalable(Index))
+    return 0;
+    
+  int x, y;
+  int x1, y1;
+  int x2, y2;
+  x = x1 = x2 = Index%m_Width;
+  y = y1 = y2 = Index/m_Width;
+  
+  if(Direction == PORTAL_UP || Direction == PORTAL_DOWN)
+  {
+    if((x-1) < 0 || (x+1) >= m_Width)
+      return 0;
+      
+    x1--;
+    x2++;
+      
+    int i = (Direction == PORTAL_UP) ? -1 : +1;
+      
+    if(IsSolid(x1*32, (y1+i)*32) || IsSolid(x2*32, (y2+i)*32) || !IsPortalable(x1+(y1*m_Width)) || !IsPortalable(x2+(y2*m_Width)))
+      return false;
+  }
+  else
+  {
+    if((y-1) < 0 || (y+1) >= m_Height)
+      return 0;
+      
+    y1--;
+    y2++;
+    
+    int i = (Direction == PORTAL_LEFT) ? -1 : +1;
+    
+    if(IsSolid((x1+i)*32, y1*32) || IsSolid((x2+i)*32, y2*32) || !IsPortalable(x1+(y1*m_Width)) || !IsPortalable(x2+(y2*m_Width)))
+      return false;
+  }
+  
+  return true;
+}
+	
+int CCollision::IsPortalable(int Index)
+{
+	if(Index < 0 || !m_pFront)
+		return 0;
+
+	if(m_pFront[Index].m_Index == TILE_PORTALABLE)
+		return 1;
+
+	return 0;
+}
+
+int CCollision::IsNoPortals(int Index)
+{
+	if(Index < 0 || !m_pFront)
+		return 0;
+
+	if(m_pFront[Index].m_Index == TILE_NO_PORTALS)
+		return 1;
+
+	return 0;
+}
+
+int CCollision::IsDeathTeamFlock(int Index)
+{
+	if(Index < 0 || !m_pFront)
+		return 0;
+
+	if(m_pFront[Index].m_Index == TILE_DEATH_TEAM_FLOCK)
+		return 1;
+
+	return 0;
+}
+//PPRace-

@@ -40,14 +40,20 @@ void CGameContext::ConCredits(IConsole::IResult *pResult, void *pUserData)
 void CGameContext::ConInfo(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *) pUserData;
+//PPRace+
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info",
-			"DDRace Mod. Version: " GAME_VERSION);
+			"PPRace   site: http://pprace.teeworlds.org/");
+	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info",
+			"Based on DDRace Mod. Version: " GAME_VERSION);
+/*
 #if defined( GIT_SHORTREV_HASH )
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info",
 			"Git revision hash: " GIT_SHORTREV_HASH);
 #endif
+*/
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info",
-			"Official site: DDRace.info");
+			"Official DDRace site: DDRace.info");
+//PPRace-
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info",
 			"For more Info /cmdlist");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info",
@@ -855,3 +861,29 @@ void CGameContext::ConSetServerGameTime(IConsole::IResult *pResult, void *pUserD
 					"Time is displayed in game/round timer now." :
 					"Time will not be displayed in game/round timer now");
 }
+
+//PPRace+
+void CGameContext::ConLaserMode(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext *pSelf = (CGameContext *) pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+  
+	if (pResult->NumArguments() > 0) {
+	  int mode = pResult->GetInteger(0);
+	  if (mode >= 0 && mode <= 2)
+  	  pPlayer->m_LaserMode = mode;
+	}
+	
+	char aBuf[256];
+  str_format(aBuf, sizeof(aBuf), "Laser mode: %s", (pPlayer->m_LaserMode == 0 ? "CLASSIC" : (pPlayer->m_LaserMode == 1 ? "PORTAL 1" : "PORTAL 2")));
+	pSelf->Console()->Print(
+			IConsole::OUTPUT_LEVEL_STANDARD,
+			"pprace",
+			aBuf);
+}
+//PPRace-

@@ -9,6 +9,10 @@
 
 #include <game/gamecore.h>
 
+//PPRace+
+#include <game/server/entities/portal.h>
+//PPRace-
+
 class CGameTeams;
 
 enum
@@ -144,6 +148,7 @@ private:
 	void DDRaceTick();
 	void DDRacePostCoreTick();
 	void HandleBroadcast();
+	
 public:
 	CGameTeams* Teams();
 	void Pause(bool Pause);
@@ -211,6 +216,12 @@ public:
 	int m_TileSFlagsB;
 	vec2 m_Intersection;
 	int64 m_LastStartWarning;
+	
+	//PPRace+
+	CPortal *m_pLastPortal;
+	CPortal *m_apPortals[2];
+	//PPRace-
+	
 	// Setters/Getters because i don't want to modify vanilla vars access modifiers
 	int GetLastWeapon() { return m_LastWeapon; };
 	void SetLastWeapon(int LastWeap) {m_LastWeapon = LastWeap; };
@@ -232,6 +243,10 @@ public:
 	void SetNinjaActivationDir(vec2 ActivationDir) { m_Ninja.m_ActivationDir = ActivationDir; };
 	void SetNinjaActivationTick(int ActivationTick) { m_Ninja.m_ActivationTick = ActivationTick; };
 	void SetNinjaCurrentMoveTime(int CurrentMoveTime) { m_Ninja.m_CurrentMoveTime = CurrentMoveTime; };
+	//PPRace+
+	void CreatePortal(vec2 Pos, int Direction);
+	void DestroyPortals();
+	//PPRace-
 };
 
 enum

@@ -153,6 +153,15 @@ bool CGameTeams::SetCharacterTeam(int ClientID, int Team)
 		else if (Team != TEAM_SUPER)
 			return false;
 	}
+	//PPRace+
+	//No more then 2 players in team
+	if (Team != TEAM_SUPER && Count(Team) >= 2)
+	  return false;
+	
+	CCharacter *C = Character(ClientID);
+  if(C)
+    C->DestroyPortals();
+	//PPRace-
 	SetForceCharacterTeam(ClientID, Team);
 
 	//GameServer()->CreatePlayerSpawn(Character(id)->m_Core.m_Pos, TeamMask());

@@ -54,6 +54,9 @@ CPlayer::CPlayer(CGameContext *pGameServer, int ClientID, int Team)
 
 	// Variable initialized:
 	m_Last_Team = 0;
+	//PPRace+
+	m_LaserMode = 0;
+	//PPRace-
 #if defined(CONF_SQL)
 	m_LastSQLQuery = 0;
 #endif

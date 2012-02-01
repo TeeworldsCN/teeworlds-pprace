@@ -52,6 +52,14 @@ CCharacter::CCharacter(CGameWorld *pWorld)
 	m_ProximityRadius = ms_PhysSize;
 	m_Health = 0;
 	m_Armor = 0;
+	//PPRace+
+	m_pLastPortal = 0;
+	vec2 NoPos;
+	m_apPortals[0] = new CPortal(&GameServer()->m_World, NoPos, 0, 0);
+	m_apPortals[1] = new CPortal(&GameServer()->m_World, NoPos, 0, 0);
+	m_apPortals[0]->m_pPair = m_apPortals[1];
+  m_apPortals[1]->m_pPair = m_apPortals[0];
+  //PPRace-
 }
 
 void CCharacter::Reset()
@@ -85,6 +93,11 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	GameServer()->m_pController->OnCharacterSpawn(this);
 
 	DDRaceInit();
+	
+	//PPRace+
+  m_apPortals[0]->m_Owner = m_pPlayer->GetCID();
+  m_apPortals[1]->m_Owner = m_pPlayer->GetCID();
+	//PPRace-
 
 	return true;
 }
@@ -93,6 +106,10 @@ void CCharacter::Destroy()
 {
 	GameServer()->m_World.m_Core.m_apCharacters[m_pPlayer->GetCID()] = 0;
 	m_Alive = false;
+	//PPRace+
+  m_apPortals[0]->m_Active = false;
+	m_apPortals[1]->m_Active = false;
+	//PPRace-
 }
 
 void CCharacter::SetWeapon(int W)
@@ -777,6 +794,10 @@ void CCharacter::Die(int Killer, int Weapon)
 	GameServer()->m_World.m_Core.m_apCharacters[m_pPlayer->GetCID()] = 0;
 	GameServer()->CreateDeath(m_Pos, m_pPlayer->GetCID(), Teams()->TeamMask(Team(), -1, m_pPlayer->GetCID()));
 	Teams()->SetForceCharacterTeam(m_pPlayer->GetCID(), 0);
+	
+	//PPRace+
+	DestroyPortals();
+	//PPRace-
 }
 
 bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon)
@@ -1037,6 +1058,19 @@ void CCharacter::HandleSkippableTiles(int Index)
 			return;
 		}
 
+//PPRace+
+  if(Team() == TEAM_FLOCK && GameServer()->Collision()->IsDeathTeamFlock(Index))
+  {
+    Die(m_pPlayer->GetCID(), WEAPON_WORLD);
+    return;
+  }
+  else if(GameServer()->Collision()->IsNoPortals(Index))
+  {
+    DestroyPortals();
+    return;
+  }
+//PPRace-
+
 	if(Index < 0)
 		return;
 
@@ -1110,6 +1144,15 @@ void CCharacter::HandleSkippableTiles(int Index)
 		}
 	}
 }
+
+//PPRace+
+void CCharacter::DestroyPortals()
+{
+	//Deactivate Portals
+  m_apPortals[0]->m_Active = false;
+	m_apPortals[1]->m_Active = false;
+}
+//PPRace-
 
 void CCharacter::HandleTiles(int Index)
 {
@@ -1520,6 +1563,10 @@ void CCharacter::DDRacePostCoreTick()
 			//dbg_msg("Running","%d", CurrentIndex);
 		}
 
+//PPRace+
+    GameServer()->HandlePortals(this);
+//PPRace-
+
 		HandleBroadcast();
 }
 
@@ -1611,3 +1658,20 @@ void CCharacter::DDRaceInit()
 	m_Hit = g_Config.m_SvHit ? HIT_ALL : DISABLE_HIT_GRENADE|DISABLE_HIT_HAMMER|DISABLE_HIT_RIFLE|DISABLE_HIT_SHOTGUN;
 	Teams()->m_Core.SetSolo(m_pPlayer->GetCID(), false);
 }
+
+//PPRace+
+void CCharacter::CreatePortal(vec2 Pos, int Direction)
+{
+  int mode = m_pPlayer->m_LaserMode;
+  
+  //Has Laser Portal mode?
+  if(mode == 0)
+    return;
+
+  //Portal mode to Portal index (mode-1)
+  int p1 = mode-1;
+  m_apPortals[p1]->m_Direction = Direction;
+  m_apPortals[p1]->Move(Pos);
+  m_apPortals[p1]->m_Active = true;
+}
+//PPRace-

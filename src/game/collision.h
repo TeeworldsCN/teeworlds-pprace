@@ -87,6 +87,13 @@ public:
 
 	int IsCheckpoint(int Index);
 	int IsFCheckpoint(int Index);
+	
+	//PPRace+
+	int IsPortalPlace(int Index, int Direction);
+	int IsPortalable(int Index);
+	int IsNoPortals(int Index);
+	int IsDeathTeamFlock(int Index);
+	//PPRace-
 
 	int IsMover(int x, int y, int* Flags);
 

@@ -88,6 +88,11 @@ public:
 	// helper functions
 	class CCharacter *GetPlayerChar(int ClientID);
 
+//PPRace+
+  void HandlePortals(CCharacter *Character);
+  int IsPortalPlace(int Index, int Direction, int Team);
+//PPRace-
+
 	// voting
 	void StartVote(const char *pDesc, const char *pCommand, const char *pReason);
 	void EndVote();
@@ -241,7 +246,9 @@ private:
 	static void ConTime(IConsole::IResult *pResult, void *pUserData);
 	static void ConSetBroadcastTime(IConsole::IResult *pResult, void *pUserData);
 	static void ConSetServerGameTime(IConsole::IResult *pResult, void *pUserData);
-
+//PPRace+
+	static void ConLaserMode(IConsole::IResult *pResult, void *pUserData);
+//PPRace-
 
 
 

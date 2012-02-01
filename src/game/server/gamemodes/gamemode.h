@@ -3,5 +3,7 @@
 #ifndef GAME_MODE_H
 #define GAME_MODE_H
 
-#define GAME_NAME "TestDDRace"
+//PPRace+
+#define GAME_NAME "PPRace"
+//PPRace-
 #endif

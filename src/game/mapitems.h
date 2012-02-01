@@ -128,6 +128,15 @@ enum
 	TILE_NOHIT,
 	TILE_NPH,//Remember to change this in collision.cpp if you add anymore tiles
 	//End of higher tiles
+
+	//PPRace+
+	TILE_PPRACE_START = 0x90,
+  TILE_PORTALABLE = 0x90,
+	TILE_NO_PORTALS,
+	TILE_DEATH_TEAM_FLOCK,
+	TILE_PPRACE_END = 0x92,
+	//PPRace-
+	
 	//Layers
 	LAYER_GAME=0,
 	LAYER_FRONT,

@@ -103,6 +103,101 @@ class CCharacter *CGameContext::GetPlayerChar(int ClientID)
 	return m_apPlayers[ClientID]->GetCharacter();
 }
 
+//PPRace+
+void CGameContext::HandlePortals(CCharacter *Character)
+{
+  //TODO!!! All characters ?
+  for(int i = 0; i < MAX_CLIENTS; i++)
+  {
+    CCharacter *C = this->GetPlayerChar(i);
+    if(!C)
+      continue;
+    
+    if(C->Team() != Character->Team())
+      continue;
+      
+    for(int i2 = 0; i2 < 2; i2++)
+    {
+      if(!C->m_apPortals[i2]->m_Active)
+        continue;
+        
+      //Collision with Portal
+      vec2 v1;
+      vec2 v2;
+      v1 = v2 = Character->m_Pos;
+      if(!Collision()->IntersectLine(C->m_apPortals[i2]->m_From, C->m_apPortals[i2]->m_To, &v1, &v2, true))
+        return;
+        
+      dbg_msg("pprace", "HM");
+      if(Character->m_pLastPortal == C->m_apPortals[i2])
+        return;
+        
+      Character->m_pLastPortal = C->m_apPortals[i2]->m_pPair;
+      Character->m_Pos = C->m_apPortals[i2]->m_pPair->m_Pos;
+      return;
+    }
+  }
+}
+
+int CGameContext::IsPortalPlace(int Index, int Direction, int Team)
+{
+  if(!Collision()->IsPortalPlace(Index, Direction))
+    return false;
+
+  int x, y;
+  int x1, y1;
+  int x2, y2;
+  int w = Collision()->GetWidth();
+  int h = Collision()->GetHeight();
+  x = x1 = x2 = Index%w;
+  y = y1 = y2 = Index/w;
+  
+  if(Direction == PORTAL_UP || Direction == PORTAL_DOWN)
+  {
+    if((x-1) < 0 || (x+1) >= w)
+      return 0;
+      
+    x1--;
+    x2++;
+  }
+  else
+  {
+    if((y-1) < 0 || (y+1) >= h)
+      return 0;
+      
+    y1--;
+    y2++;
+  }
+  
+  //TODO!!! All characters ?
+  for(int i = 0; i < MAX_CLIENTS; i++)
+  {
+    CCharacter *Character = this->GetPlayerChar(i);
+    if(!Character)
+      continue;
+    
+    if(Character->Team() != Team)
+      continue;
+      
+    for(int i2 = 0; i2 < 2; i2++)
+    {
+      if(!Character->m_apPortals[i2]->m_Active)
+        continue;
+        
+      vec2 P = Character->m_apPortals[i2]->m_Pos;
+      P.x /= 32;
+      P.y /= 32;
+      int D = Character->m_apPortals[i2]->m_Direction;
+      
+      if((P.x == x && P.y == y) || (P.x == x1 && P.y == y1) || (P.x == x2 && P.y == y2))
+        return false;
+    }
+  }
+  
+  return true;
+}
+//PPRace-
+
 void CGameContext::CreateDamageInd(vec2 Pos, float Angle, int Amount, int Mask)
 {
 	float a = 3 * 3.14159f / 2 + Angle;
@@ -665,10 +760,11 @@ void CGameContext::OnClientEnter(int ClientID)
 		char aBuf[512];
 		str_format(aBuf, sizeof(aBuf), "'%s' entered and joined the %s", Server()->ClientName(ClientID), m_pController->GetTeamName(m_apPlayers[ClientID]->GetTeam()));
 		SendChat(-1, CGameContext::CHAT_ALL, aBuf);
-
-		SendChatTarget(ClientID, "DDRace Mod. Version: " GAME_VERSION);
+//PPRace+
+		SendChatTarget(ClientID, "PPRace   site: http://pprace.teeworlds.org/");
+		SendChatTarget(ClientID, "Based on DDRace Mod. Version: " GAME_VERSION);
+//PPRace-
 		SendChatTarget(ClientID, "please visit http://DDRace.info or say /info for more info");
-
 		if(g_Config.m_SvWelcome[0]!=0)
 			SendChatTarget(ClientID,g_Config.m_SvWelcome);
 		str_format(aBuf, sizeof(aBuf), "team_join player='%d:%s' team=%d", ClientID, Server()->ClientName(ClientID), m_apPlayers[ClientID]->GetTeam());
