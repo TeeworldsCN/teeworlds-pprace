@@ -28,6 +28,7 @@ CHAT_COMMAND("gametimertime", "?s", CFGFLAG_CHAT|CFGFLAG_SERVER, ConSetServerGam
 
 //PPRace+
 CHAT_COMMAND("laser", "?i", CFGFLAG_CHAT|CFGFLAG_SERVER, ConLaserMode, this, "Set Laser mode to Classic (0) or Portal (1 & 2)")
+CHAT_COMMAND("portal", "?i", CFGFLAG_CHAT|CFGFLAG_SERVER, ConPortal, this, "Set and toggle portal mode")
 //PPRace-
 
 #if defined(CONF_SQL)

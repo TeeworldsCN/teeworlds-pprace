@@ -27,12 +27,18 @@ bool CPortal::IsIn(vec2 Pos)
   {
     if(absolute(Pos.x-m_Pos.x) >= 34)
       return false;
-    
+   
+    if((m_Direction == PORTAL_UP) == ((Pos.y-m_Pos.y) > 0))
+      return false;
+      
     return absolute(Pos.y-m_Pos.y) < 32;
   }
   else
   {
     if(absolute(Pos.y-m_Pos.y) >= 34)
+      return false;
+      
+    if((m_Direction == PORTAL_LEFT) == ((Pos.x-m_Pos.x) > 0))
       return false;
       
     return absolute(Pos.x-m_Pos.x) < 32;
@@ -108,6 +114,11 @@ void CPortal::Snap(int SnappingClient)
     return;
     
   CCharacter *Char = GameServer()->GetPlayerChar(SnappingClient);
+  
+  //TODO!!! Fix - Když nemá character možná je spec, ten by ho měl vidět.
+  if(!Char) 
+    return;
+     
   if (Char->Team() != Team())
     return;
     

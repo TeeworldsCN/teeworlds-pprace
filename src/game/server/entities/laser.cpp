@@ -156,6 +156,11 @@ void CLaser::DoBounce()
     		    //Stop this laser
             m_Energy = 0;
     		  }
+    		  else if(GameServer()->Collision()->IsPortalAbsorb(CurrentIndex))
+    		  {
+    		    //Stop this laser
+            m_Energy = 0;
+    		  }
     		}
 		  }
 		//PPRace-	

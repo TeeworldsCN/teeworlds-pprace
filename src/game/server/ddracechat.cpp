@@ -886,4 +886,36 @@ void CGameContext::ConLaserMode(IConsole::IResult *pResult, void *pUserData)
 			"pprace",
 			aBuf);
 }
+
+void CGameContext::ConPortal(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext *pSelf = (CGameContext *) pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+  
+	if (pResult->NumArguments() > 0) {
+	  int mode = pResult->GetInteger(0);
+	  if (mode >= 1 && mode <= 2)
+  	  pPlayer->m_LaserMode = mode;
+	}
+	else if (pPlayer->m_LaserMode == 0)
+	  return;
+	
+	//Fire
+	//TODO!!!
+	
+	//Toggle
+	pPlayer->m_LaserMode = ((pPlayer->m_LaserMode == 1) ? 2 : 1);
+	
+	char aBuf[256];
+  str_format(aBuf, sizeof(aBuf), "Laser mode: %s", (pPlayer->m_LaserMode == 1 ? "PORTAL 1" : "PORTAL 2"));
+	pSelf->Console()->Print(
+			IConsole::OUTPUT_LEVEL_STANDARD,
+			"pprace",
+			aBuf);
+}
 //PPRace-

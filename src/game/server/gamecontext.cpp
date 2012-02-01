@@ -124,10 +124,6 @@ void CGameContext::HandlePortals(CCharacter *Character)
     for(int i2 = 0; i2 < 2; i2++)
     {
       //Collision with Portal
-      //vec2 v1;
-      //vec2 v2;
-      //v1 = v2 = Character->m_Pos;
-      //if(!Collision()->IntersectLine(C->m_apPortals[i2]->m_From, C->m_apPortals[i2]->m_To, &v1, 0, true))
       if(!C->m_apPortals[i2]->IsIn(Character->m_Pos))
       {
         //If Tee is not in last portal, cancel last portal.
@@ -185,23 +181,40 @@ void CGameContext::HandlePortals(CCharacter *Character)
       //Apply
       if(C->m_apPortals[i2]->IsHorizontal() == C->m_apPortals[i2]->m_pPair->IsHorizontal())
       {
-        //Flip if is same direction
-        float f = (C->m_apPortals[i2]->m_Direction == C->m_apPortals[i2]->m_pPair->m_Direction) ? -1 : +1;
-        
         if(C->m_apPortals[i2]->IsHorizontal())
         {
           Character->Core()->m_Pos.x -= v.x;
-          Character->Core()->m_Pos.y += v.y*f;
+          Character->Core()->m_Pos.y += v.y;
         }
         else
         {
-          Character->Core()->m_Pos.x += v.x*f;
+          Character->Core()->m_Pos.x += v.x;
           Character->Core()->m_Pos.y -= v.y;
         }
       }
       else
         Character->Core()->m_Pos = (Character->Core()->m_Pos)+v;
-
+        
+      //Fix - Far from wall
+      switch(C->m_apPortals[i2]->m_pPair->m_Direction)
+      {
+        case PORTAL_LEFT: 
+          Character->Core()->m_Pos.x--;
+          break;
+        
+        case PORTAL_UP:
+          Character->Core()->m_Pos.y--;
+          break;
+          
+        case PORTAL_RIGHT:
+          Character->Core()->m_Pos.x++;
+          break;
+          
+        case PORTAL_DOWN:
+          Character->Core()->m_Pos.y++;
+          break;
+      }
+      
       //Ported, done.
       return;
     }

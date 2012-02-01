@@ -55,8 +55,8 @@ CCharacter::CCharacter(CGameWorld *pWorld)
 	//PPRace+
 	m_pLastPortal = 0;
 	vec2 NoPos;
-	m_apPortals[0] = new CPortal(&GameServer()->m_World, NoPos, 0, 0);
-	m_apPortals[1] = new CPortal(&GameServer()->m_World, NoPos, 0, 0);
+	m_apPortals[0] = new CPortal(&GameServer()->m_World, NoPos, 0, -1);
+	m_apPortals[1] = new CPortal(&GameServer()->m_World, NoPos, 0, -1);
 	m_apPortals[0]->m_pPair = m_apPortals[1];
   m_apPortals[1]->m_pPair = m_apPortals[0];
   //PPRace-
@@ -107,6 +107,9 @@ void CCharacter::Destroy()
 	GameServer()->m_World.m_Core.m_apCharacters[m_pPlayer->GetCID()] = 0;
 	m_Alive = false;
 	//PPRace+
+	m_pLastPortal = 0;
+	m_apPortals[0]->m_Owner = -1;
+  m_apPortals[1]->m_Owner = -1;
   m_apPortals[0]->m_Active = false;
 	m_apPortals[1]->m_Active = false;
 	//PPRace-
