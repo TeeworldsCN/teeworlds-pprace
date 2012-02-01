@@ -248,6 +248,7 @@ private:
 	static void ConSetServerGameTime(IConsole::IResult *pResult, void *pUserData);
 //PPRace+
 	static void ConLaserMode(IConsole::IResult *pResult, void *pUserData);
+	static void ConPortal(IConsole::IResult *pResult, void *pUserData);
 //PPRace-
 
 
