@@ -154,7 +154,7 @@ void CPortal::Snap(int SnappingClient)
   CCharacter *Char = GameServer()->GetPlayerChar(SnappingClient);
   
   //Only spectators can see all portals
-  if(Char) 
+  if(Char && !GameServer()->m_apPlayers[SnappingClient]->m_ShowOthers) 
   {
     if (Char->Team() != Team())
       return;
