@@ -15,6 +15,8 @@ enum
 
 class CPortal: public CEntity
 {
+protected:
+  int m_ID2;
 public:
 	int m_Owner;
   CPortal *m_pPair;
@@ -26,11 +28,13 @@ public:
 	int m_Direction;
   
 	CPortal(CGameWorld *pGameWorld, vec2 Pos, int Direction, int Owner);
+	~CPortal();
   
-  bool IsIn(vec2 Pos);
-  bool IsHorizontal();
-  int Team();
-  void Move(vec2 Pos);
+  bool IsIn(vec2 Pos); //Entered to portal
+  bool IsTooClose(vec2 Pos); //Is new portal position too close?
+  bool IsHorizontal(); //Is horizintally placed portal? (PORTAL_UP or PORTAL_DOWN) 
+  int Team(); //Portal is in Team
+  void Move(vec2 Pos); //Set portal position (Direction needed!)
 	virtual void Reset();
 	virtual void Tick();
 	virtual void Snap(int SnappingClient);

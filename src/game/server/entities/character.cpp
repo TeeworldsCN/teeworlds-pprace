@@ -637,6 +637,10 @@ void CCharacter::Tick()
 	if (m_Paused)
 		return;
 
+//PPRace+
+  GameServer()->HandlePortals(this);
+//PPRace-
+
 	DDRaceTick();
 
 	m_Core.m_Input = m_Input;
@@ -1566,10 +1570,6 @@ void CCharacter::DDRacePostCoreTick()
 			//dbg_msg("Running","%d", CurrentIndex);
 		}
 
-//PPRace+
-    GameServer()->HandlePortals(this);
-//PPRace-
-
 		HandleBroadcast();
 }
 
@@ -1663,6 +1663,14 @@ void CCharacter::DDRaceInit()
 }
 
 //PPRace+
+CPortal* CCharacter::ActivePortal()
+{
+  if(m_pPlayer->m_LaserMode == 0)
+    return 0;
+  
+  return m_apPortals[(m_pPlayer->m_LaserMode)-1];
+}
+
 void CCharacter::CreatePortal(vec2 Pos, int Direction)
 {
   int mode = m_pPlayer->m_LaserMode;

@@ -90,7 +90,7 @@ public:
 
 //PPRace+
   void HandlePortals(CCharacter *Character);
-  int IsPortalPlace(int Index, int Direction, int Team);
+  int IsPortalPlace(int Index, int Direction, int Team, CPortal *ExceptPortal);
 //PPRace-
 
 	// voting

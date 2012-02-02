@@ -1,0 +1,6 @@
+v0.4
+- portal border extended to whole tile
+- calling of HandlePortals() moved to start of Tick()
+- added checking for portal placing
+- improved /portal command
+- better portal look

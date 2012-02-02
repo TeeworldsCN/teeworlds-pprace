@@ -215,68 +215,75 @@ void CGameContext::HandlePortals(CCharacter *Character)
           break;
       }
       
+      //Fix - Speed
+      if(C->m_apPortals[i2]->m_Direction == C->m_apPortals[i2]->m_pPair->m_Direction)
+      {
+        if(C->m_apPortals[i2]->IsHorizontal())
+          Character->Core()->m_Vel.y *= -1;
+        else
+          Character->Core()->m_Vel.x *= -1;
+      }
+      
       //Ported, done.
       return;
     }
   }
 }
 
-int CGameContext::IsPortalPlace(int Index, int Direction, int Team)
+int CGameContext::IsPortalPlace(int Index, int Direction, int Team, CPortal *ExceptPortal)
 {
   if(!Collision()->IsPortalPlace(Index, Direction))
     return false;
 
   int x, y;
-  int x1, y1;
-  int x2, y2;
   int w = Collision()->GetWidth();
   int h = Collision()->GetHeight();
-  x = x1 = x2 = Index%w;
-  y = y1 = y2 = Index/w;
+  x = Index%w;
+  y = Index/w;
   
   if(Direction == PORTAL_UP || Direction == PORTAL_DOWN)
   {
     if((x-1) < 0 || (x+1) >= w)
       return 0;
-      
-    x1--;
-    x2++;
   }
   else
   {
     if((y-1) < 0 || (y+1) >= h)
       return 0;
-      
-    y1--;
-    y2++;
   }
+  
+  vec2 Pos; //New portal position
+  Pos.x = x*32+16;
+  Pos.y = y*32+16;
   
   //TODO!!! All characters ?
   for(int i = 0; i < MAX_CLIENTS; i++)
   {
-    CCharacter *Character = this->GetPlayerChar(i);
-    if(!Character)
+    CCharacter *C = this->GetPlayerChar(i);
+    if(!C)
       continue;
     
-    if(Character->Team() != Team)
+    if(C->Team() != Team)
       continue;
       
     for(int i2 = 0; i2 < 2; i2++)
     {
-      if(!Character->m_apPortals[i2]->m_Active)
+      if(ExceptPortal)
+      {
+        //Skip portal
+        if(ExceptPortal == C->m_apPortals[i2])
+          continue;
+      }
+      
+      if(!C->m_apPortals[i2]->m_Active)
         continue;
         
-      vec2 P = Character->m_apPortals[i2]->m_Pos;
-      P.x /= 32;
-      P.y /= 32;
-      int D = Character->m_apPortals[i2]->m_Direction;
-      
-      if((P.x == x && P.y == y) || (P.x == x1 && P.y == y1) || (P.x == x2 && P.y == y2))
-        return false;
+      if(C->m_apPortals[i2]->IsTooClose(Pos))
+        return 0;
     }
   }
   
-  return true;
+  return 1;
 }
 //PPRace-
 

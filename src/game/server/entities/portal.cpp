@@ -10,6 +10,8 @@
 CPortal::CPortal(CGameWorld *pGameWorld, vec2 Pos, int Direction, int Owner) :
 		CEntity(pGameWorld, CGameWorld::ENTTYPE_LASER)
 {
+  m_ID2 = Server()->SnapNewID();
+  
   m_Owner = Owner;
   m_Active = false;
 	m_Direction = Direction;
@@ -18,6 +20,11 @@ CPortal::CPortal(CGameWorld *pGameWorld, vec2 Pos, int Direction, int Owner) :
 	m_pPair = 0;
 
 	GameWorld()->InsertEntity(this);
+}
+
+CPortal::~CPortal()
+{
+  Server()->SnapFreeID(m_ID2);
 }
 
 bool CPortal::IsIn(vec2 Pos)
@@ -31,7 +38,7 @@ bool CPortal::IsIn(vec2 Pos)
     if((m_Direction == PORTAL_UP) == ((Pos.y-m_Pos.y) > 0))
       return false;
       
-    return absolute(Pos.y-m_Pos.y) < 32;
+    return absolute(Pos.y-m_Pos.y) < 48; //1 tile
   }
   else
   {
@@ -41,8 +48,39 @@ bool CPortal::IsIn(vec2 Pos)
     if((m_Direction == PORTAL_LEFT) == ((Pos.x-m_Pos.x) > 0))
       return false;
       
-    return absolute(Pos.x-m_Pos.x) < 32;
+    return absolute(Pos.x-m_Pos.x) < 48; //1 tile
   }
+}
+
+bool CPortal::IsTooClose(vec2 Pos)
+{
+  float l = m_Pos.x-16;
+  float u = m_Pos.y-16;
+  float r = m_Pos.x+16;
+  float d = m_Pos.y+16;
+  
+  if(m_Direction == PORTAL_UP || m_Direction == PORTAL_DOWN)
+  {
+    l -= 96;
+    r += 96;
+    
+    if(m_Direction == PORTAL_UP)
+      u -= 96;
+    else
+      d += 96;
+  }
+  else
+  {
+    u -= 96;
+    d += 96;
+    
+    if(m_Direction == PORTAL_LEFT)
+      l -= 96;
+    else
+      r += 96;
+  }
+  
+  return (Pos.x > l && Pos.y > u && Pos.x < r && Pos.y < d);
 }
 
 bool CPortal::IsHorizontal()
@@ -115,13 +153,13 @@ void CPortal::Snap(int SnappingClient)
     
   CCharacter *Char = GameServer()->GetPlayerChar(SnappingClient);
   
-  //TODO!!! Fix - Když nemá character možná je spec, ten by ho měl vidět.
-  if(!Char) 
-    return;
-     
-  if (Char->Team() != Team())
-    return;
-    
+  //Only spectators can see all portals
+  if(Char) 
+  {
+    if (Char->Team() != Team())
+      return;
+  }
+   
 	if (NetworkClipped(SnappingClient, m_Pos)
 			&& NetworkClipped(SnappingClient, m_To))
 		return;
@@ -132,5 +170,11 @@ void CPortal::Snap(int SnappingClient)
 	pObj->m_Y = (int) m_From.y;
 	pObj->m_FromX = (int) m_To.x;
 	pObj->m_FromY = (int) m_To.y;
+	pObj->m_StartTick = Server()->Tick();
+	
+	pObj = static_cast<CNetObj_Laser *>(Server()->SnapNewItem(
+			NETOBJTYPE_LASER, m_ID2, sizeof(CNetObj_Laser)));
+	pObj->m_X = pObj->m_FromX = (int) m_To.x;
+	pObj->m_Y = pObj->m_FromY = (int) m_To.y;
 	pObj->m_StartTick = Server()->Tick();
 }

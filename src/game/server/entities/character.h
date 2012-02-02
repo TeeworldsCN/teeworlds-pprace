@@ -244,6 +244,7 @@ public:
 	void SetNinjaActivationTick(int ActivationTick) { m_Ninja.m_ActivationTick = ActivationTick; };
 	void SetNinjaCurrentMoveTime(int CurrentMoveTime) { m_Ninja.m_CurrentMoveTime = CurrentMoveTime; };
 	//PPRace+
+	CPortal* ActivePortal();
 	void CreatePortal(vec2 Pos, int Direction);
 	void DestroyPortals();
 	//PPRace-

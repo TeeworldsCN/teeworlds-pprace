@@ -903,7 +903,7 @@ void CGameContext::ConPortal(IConsole::IResult *pResult, void *pUserData)
   	  pPlayer->m_LaserMode = mode;
 	}
 	else if (pPlayer->m_LaserMode == 0)
-	  return;
+	  pPlayer->m_LaserMode = 1; //Set first portal
 	
 	//Fire
 	//TODO!!!

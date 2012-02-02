@@ -130,8 +130,6 @@ void CLaser::DoBounce()
     		  //Is Portal-able tile?
     		  if(GameServer()->Collision()->IsPortalable(CurrentIndex))
     		  {
-    		    dbg_msg("pprace", "PORTAL: %d x %d", PortalTile.x, PortalTile.y);
-  		    
             //Get Direction TODO!!!
             vec2 Delta = PortalTile;
             Delta.x -= Coltile.x;
@@ -147,7 +145,7 @@ void CLaser::DoBounce()
             }
             
             //Is Portal Place?
-            if(GameServer()->IsPortalPlace(CurrentIndex, Direction, OwnerChar->Team()))
+            if(GameServer()->IsPortalPlace(CurrentIndex, Direction, OwnerChar->Team(), OwnerChar->ActivePortal()))
             {
       		    //Create Portal
       		    OwnerChar->CreatePortal(PortalTile, Direction);
