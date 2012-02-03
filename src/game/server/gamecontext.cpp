@@ -140,6 +140,9 @@ void CGameContext::HandlePortals(CCharacter *Character)
       Character->m_pLastPortal = C->m_apPortals[i2]->m_pPair;
       Character->Core()->m_Pos = C->m_apPortals[i2]->m_pPair->m_Pos;
       
+      //Velocity
+      vec2 v2 = Character->Core()->m_Vel;
+      
       float f = 0;
       
       //"Normalize" input vector
@@ -195,6 +198,57 @@ void CGameContext::HandlePortals(CCharacter *Character)
       else
         Character->Core()->m_Pos = (Character->Core()->m_Pos)+v;
         
+      //Apply Velocity
+      v2 *= 1.04; //Faster
+      if(C->m_apPortals[i2]->m_Direction == C->m_apPortals[i2]->m_pPair->m_Direction)
+      {
+        //Same direction
+        v2 *= -1;
+      }
+      else if(C->m_apPortals[i2]->IsHorizontal() == C->m_apPortals[i2]->m_pPair->IsHorizontal())
+      {
+        //Reverse direction
+        //No change
+      }
+      else
+      {
+        f = v2.y;
+        v2.y = v2.x;
+        v2.x = f;
+        
+        switch(C->m_apPortals[i2]->m_Direction)
+        {
+          case PORTAL_LEFT: 
+            if(C->m_apPortals[i2]->m_pPair->m_Direction == PORTAL_UP)
+              v2.y *= -1; //+x,-y
+            else
+              v2.x *= -1; //-x,+y
+            break;
+            
+          case PORTAL_UP:
+            if(C->m_apPortals[i2]->m_pPair->m_Direction == PORTAL_LEFT)
+              v2.x *= -1; //-x,+y
+            else
+              v2.y *= -1; //+x,-y
+            break;
+            
+          case PORTAL_RIGHT:
+            if(C->m_apPortals[i2]->m_pPair->m_Direction == PORTAL_UP)
+              v2.x *= -1; //-x,+y
+            else
+              v2.y *= -1; //+x,-y
+            break;
+          
+          case PORTAL_DOWN:
+            if(C->m_apPortals[i2]->m_pPair->m_Direction == PORTAL_LEFT)
+              v2.y *= -1; //+x,-y
+            else
+              v2.x *= -1; //-x,+y
+            break;
+        }
+      }
+      Character->Core()->m_Vel = v2;
+        
       //Fix - Far from wall
       switch(C->m_apPortals[i2]->m_pPair->m_Direction)
       {
@@ -213,15 +267,6 @@ void CGameContext::HandlePortals(CCharacter *Character)
         case PORTAL_DOWN:
           Character->Core()->m_Pos.y++;
           break;
-      }
-      
-      //Fix - Speed
-      if(C->m_apPortals[i2]->m_Direction == C->m_apPortals[i2]->m_pPair->m_Direction)
-      {
-        if(C->m_apPortals[i2]->IsHorizontal())
-          Character->Core()->m_Vel.y *= -1;
-        else
-          Character->Core()->m_Vel.x *= -1;
       }
       
       //Ported, done.
