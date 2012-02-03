@@ -1076,6 +1076,15 @@ void CCharacter::HandleSkippableTiles(int Index)
     DestroyPortals();
     return;
   }
+  else if(GameServer()->Collision()->IsReleaseHook(Index))
+  {
+		m_Core.m_HookedPlayer = -1;
+		m_Core.m_HookState = HOOK_RETRACTED;
+		m_Core.m_TriggeredEvents |= COREEVENT_HOOK_RETRACT;
+		m_Core.m_HookState = HOOK_RETRACTED;
+		GameWorld()->ReleaseHooked(GetPlayer()->GetCID());
+    return;
+  }
 //PPRace-
 
 	if(Index < 0)

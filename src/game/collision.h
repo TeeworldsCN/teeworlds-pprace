@@ -90,10 +90,12 @@ public:
 	
 	//PPRace+
 	int IsPortalPlace(int Index, int Direction);
+	
 	int IsPortalable(int Index);
 	int IsNoPortals(int Index);
 	int IsDeathTeamFlock(int Index);
 	int IsPortalAbsorb(int Index);
+	int IsReleaseHook(int Index);
 	//PPRace-
 
 	int IsMover(int x, int y, int* Flags);

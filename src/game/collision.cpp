@@ -1056,4 +1056,15 @@ int CCollision::IsPortalAbsorb(int Index)
 
 	return 0;
 }
+
+int CCollision::IsReleaseHook(int Index)
+{
+	if(Index < 0 || !m_pFront)
+		return 0;
+
+	if(m_pFront[Index].m_Index == TILE_RELEASE_HOOK)
+		return 1;
+
+	return 0;
+}
 //PPRace-
