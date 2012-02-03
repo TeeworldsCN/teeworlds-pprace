@@ -199,7 +199,7 @@ void CGameContext::HandlePortals(CCharacter *Character)
         Character->Core()->m_Pos = (Character->Core()->m_Pos)+v;
         
       //Apply Velocity
-      v2 *= 1.04; //Faster
+      //v2 *= 1.04; //Faster
       if(C->m_apPortals[i2]->m_Direction == C->m_apPortals[i2]->m_pPair->m_Direction)
       {
         //Same direction
