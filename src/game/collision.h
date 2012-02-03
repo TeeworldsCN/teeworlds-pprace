@@ -50,6 +50,9 @@ public:
 	int GetDTileFlags(int Index);
 	int GetDTileNumber(int Index);
 	int GetFCollisionAt(float x, float y) { return GetFTile(round(x), round(y)); }
+	//PPRace+
+	int IntersectNoPortal(vec2 Pos0, vec2 *Pos1);
+	//PPRace-
 	int IntersectNoLaser(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *pOutBeforeCollision);
 	int IntersectNoLaserNW(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *pOutBeforeCollision);
 	int IntersectAir(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *pOutBeforeCollision);

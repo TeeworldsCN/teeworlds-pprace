@@ -859,6 +859,29 @@ void ThroughOffset(vec2 Pos0, vec2 Pos1, int *Ox, int *Oy)
 	}
 }
 
+//PPRace+
+int CCollision::IntersectNoPortal(vec2 Pos0, vec2 *Pos1)
+{
+	float d = distance(Pos0, *Pos1);
+	vec2 Last = Pos0;
+
+	for(float f = 0; f < d; f++)
+	{
+		float a = f/d;
+		vec2 Pos = mix(Pos0, *Pos1, a);
+		int Nx = clamp(round(Pos.x)/32, 0, m_Width-1);
+		int Ny = clamp(round(Pos.y)/32, 0, m_Height-1);
+		if(GetFIndex(Nx, Ny) == TILE_NO_PORTALS)
+		{
+		  *Pos1 = Last;
+		  return 1;
+		}
+		Last = Pos;
+	}
+	return 0;
+}
+//PPRace-
+
 int CCollision::IntersectNoLaser(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *pOutBeforeCollision)
 {
 	float d = distance(Pos0, Pos1);
