@@ -275,27 +275,76 @@ void CGameContext::HandlePortals(CCharacter *Character)
   }
 }
 
-int CGameContext::IsPortalPlace(int Index, int Direction, int Team, CPortal *ExceptPortal)
+int CGameContext::GetPortalPlace(int Index, int Direction, int Team, CPortal *ExceptPortal)
 {
-  if(!Collision()->IsPortalPlace(Index, Direction))
-    return false;
-
   int x, y;
   int w = Collision()->GetWidth();
   int h = Collision()->GetHeight();
+  
+  if(!Collision()->IsPortalPlace(Index, Direction))
+  {
+    x = Index%w;
+    y = Index/w;
+    bool Found = false;
+    
+    if(Direction == PORTAL_UP || Direction == PORTAL_DOWN)
+    {
+      x--;
+      if(x >= 0)
+      {
+        Index = (y*w)+x;
+        Found = Collision()->IsPortalPlace(Index, Direction);
+      }
+      
+      if(!Found)
+      {
+        x += 2;
+        if(x < w)
+        {
+          Index = (y*w)+x;
+          Found = Collision()->IsPortalPlace(Index, Direction);
+        }
+      }
+    }
+    else
+    {
+      y--;
+      if(y >= 0)
+      {
+        Index = (y*w)+x;
+        Found = Collision()->IsPortalPlace(Index, Direction);
+      }
+      
+      if(!Found)
+      {
+        y += 2;
+        if(y < h)
+        {
+          Index = (y*w)+x;
+          Found = Collision()->IsPortalPlace(Index, Direction);
+        }
+      }
+    }
+    
+    if(!Found)
+      return -1;
+  }
+  
   x = Index%w;
   y = Index/w;
   
+  /*Removed - duplicity with Collision()->IsPortalPlace()
   if(Direction == PORTAL_UP || Direction == PORTAL_DOWN)
   {
     if((x-1) < 0 || (x+1) >= w)
-      return 0;
+      return -1;
   }
   else
   {
     if((y-1) < 0 || (y+1) >= h)
-      return 0;
+      return -1;
   }
+  */
   
   vec2 Pos; //New portal position
   Pos.x = x*32+16;
@@ -324,11 +373,11 @@ int CGameContext::IsPortalPlace(int Index, int Direction, int Team, CPortal *Exc
         continue;
         
       if(C->m_apPortals[i2]->IsTooClose(Pos))
-        return 0;
+        return -1;
     }
   }
   
-  return 1;
+  return Index;
 }
 //PPRace-
 

@@ -141,10 +141,11 @@ void CLaser::DoBounce()
             }
             
             //Is Portal Place?
-            if(GameServer()->IsPortalPlace(CurrentIndex, Direction, OwnerChar->Team(), OwnerChar->ActivePortal()))
+            int NewIndex = GameServer()->GetPortalPlace(CurrentIndex, Direction, OwnerChar->Team(), OwnerChar->ActivePortal());
+            if(NewIndex >= 0)
             {
       		    //Create Portal
-      		    OwnerChar->CreatePortal(PortalTile, Direction);
+      		    OwnerChar->CreatePortal(GameServer()->Collision()->GetPos(NewIndex), Direction);
             }
         
     		    //Stop this laser
