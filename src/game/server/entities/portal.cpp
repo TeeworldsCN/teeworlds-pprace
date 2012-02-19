@@ -7,10 +7,15 @@
 
 #include "portal.h"
 
-CPortal::CPortal(CGameWorld *pGameWorld, vec2 Pos, int Direction, int Owner) :
+CPortal::CPortal(CGameWorld *pGameWorld, vec2 Pos, int Direction, int Owner, bool IsSecond) :
 		CEntity(pGameWorld, CGameWorld::ENTTYPE_LASER)
 {
   m_ID2 = Server()->SnapNewID();
+  
+  m_UseS2 = IsSecond;
+  m_IDS1 = Server()->SnapNewID();
+  if(IsSecond)
+    m_IDS2 = Server()->SnapNewID();
   
   m_Owner = Owner;
   m_Active = false;
@@ -19,12 +24,17 @@ CPortal::CPortal(CGameWorld *pGameWorld, vec2 Pos, int Direction, int Owner) :
 	
 	m_pPair = 0;
 
+  m_SignType = -1;
+
 	GameWorld()->InsertEntity(this);
 }
 
 CPortal::~CPortal()
 {
   Server()->SnapFreeID(m_ID2);
+  Server()->SnapFreeID(m_IDS1);
+  if(m_UseS2)
+    Server()->SnapFreeID(m_IDS2);
 }
 
 bool CPortal::IsIn(vec2 Pos)
@@ -134,6 +144,46 @@ void CPortal::Move(vec2 Pos)
   	m_From.y -= 48;
   	m_To.y += 48;
 	}
+	
+	//Move Signs
+  m_S1Pos = m_Pos;
+  m_S2Pos = m_Pos;
+	if(m_UseS2)
+	{
+    if(h)
+    {
+      m_S1Pos.x -= 16;
+      m_S2Pos.x += 16;
+    }
+    else
+    {
+      m_S1Pos.y -= 16;
+      m_S2Pos.y += 16;
+    }
+	}
+	
+	switch(m_Direction)
+	{
+	  case PORTAL_LEFT:
+	    m_S1Pos.x -= 16;
+      m_S2Pos.x -= 16;
+      break;
+      
+	  case PORTAL_UP:
+	    m_S1Pos.y -= 16;
+      m_S2Pos.y -= 16;
+      break;
+      
+	  case PORTAL_RIGHT:
+	    m_S1Pos.x += 16;
+      m_S2Pos.x += 16;
+      break;
+      
+	  case PORTAL_DOWN:
+	    m_S1Pos.y += 16;
+      m_S2Pos.y += 16;
+      break;
+	}
 }
 
 void CPortal::Reset()
@@ -177,4 +227,29 @@ void CPortal::Snap(int SnappingClient)
 	pObj->m_X = pObj->m_FromX = (int) m_To.x;
 	pObj->m_Y = pObj->m_FromY = (int) m_To.y;
 	pObj->m_StartTick = Server()->Tick();
+	
+	//Signs
+	if(m_SignType == -1)
+	  return;
+	  
+	CNetObj_Pickup *pP = static_cast<CNetObj_Pickup *>(Server()->SnapNewItem(NETOBJTYPE_PICKUP, m_IDS1, sizeof(CNetObj_Pickup)));
+	if(!pP)
+		return;
+
+	pP->m_X = (int)m_S1Pos.x;
+	pP->m_Y = (int)m_S1Pos.y;
+	pP->m_Type = m_SignType;
+	pP->m_Subtype = 0;
+	
+	if(m_UseS2)
+	{
+	  pP = static_cast<CNetObj_Pickup *>(Server()->SnapNewItem(NETOBJTYPE_PICKUP, m_IDS2, sizeof(CNetObj_Pickup)));
+  	if(!pP)
+  		return;
+  
+  	pP->m_X = (int)m_S2Pos.x;
+  	pP->m_Y = (int)m_S2Pos.y;
+  	pP->m_Type = m_SignType;
+  	pP->m_Subtype = 0;
+	}
 }

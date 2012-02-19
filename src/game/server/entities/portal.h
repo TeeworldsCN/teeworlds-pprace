@@ -17,6 +17,11 @@ class CPortal: public CEntity
 {
 protected:
   int m_ID2;
+  int m_IDS1;
+  int m_IDS2;
+  vec2 m_S1Pos;
+  vec2 m_S2Pos;
+  bool m_UseS2;
 public:
 	int m_Owner;
   CPortal *m_pPair;
@@ -27,7 +32,10 @@ public:
 	bool m_Active;
 	int m_Direction;
   
-	CPortal(CGameWorld *pGameWorld, vec2 Pos, int Direction, int Owner);
+  //-1 (hide) or POWERUP_HEALTH or POWERUP_ARMOR
+  int m_SignType;
+  
+	CPortal(CGameWorld *pGameWorld, vec2 Pos, int Direction, int Owner, bool IsSecond);
 	~CPortal();
   
   bool IsIn(vec2 Pos); //Entered to portal

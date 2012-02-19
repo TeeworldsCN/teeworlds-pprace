@@ -220,6 +220,24 @@ void CGameTeams::onChangeTeamState(int Team, int State, int OldState)
 	if (OldState != State && State == TEAMSTATE_STARTED)
 	{
 		// OnTeamStateStarting
+		//PPRace+
+    //TODO!!! All characters ?
+    int SignType = POWERUP_HEALTH;
+    for(int i = 0; i < MAX_CLIENTS; i++)
+    {
+      CCharacter *C = this->Character(i);
+      if(!C)
+        continue;
+      
+      //Isn't in same team?
+      if(C->Team() != Team)
+        continue;
+        
+      C->m_apPortals[0]->m_SignType = SignType;
+      C->m_apPortals[1]->m_SignType = SignType;
+      SignType = POWERUP_ARMOR; //For Second Player
+    }
+		//PPRace-
 	}
 	if (OldState != State && State == TEAMSTATE_FINISHED)
 	{

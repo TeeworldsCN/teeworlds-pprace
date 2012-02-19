@@ -55,8 +55,8 @@ CCharacter::CCharacter(CGameWorld *pWorld)
 	//PPRace+
 	m_pLastPortal = 0;
 	vec2 NoPos;
-	m_apPortals[0] = new CPortal(&GameServer()->m_World, NoPos, 0, -1);
-	m_apPortals[1] = new CPortal(&GameServer()->m_World, NoPos, 0, -1);
+	m_apPortals[0] = new CPortal(&GameServer()->m_World, NoPos, 0, -1, false);
+	m_apPortals[1] = new CPortal(&GameServer()->m_World, NoPos, 0, -1, true);
 	m_apPortals[0]->m_pPair = m_apPortals[1];
   m_apPortals[1]->m_pPair = m_apPortals[0];
   //PPRace-
@@ -804,6 +804,9 @@ void CCharacter::Die(int Killer, int Weapon)
 	
 	//PPRace+
 	DestroyPortals();
+	
+  m_apPortals[0]->m_SignType = -1;
+	m_apPortals[1]->m_SignType = -1;
 	//PPRace-
 }
 
