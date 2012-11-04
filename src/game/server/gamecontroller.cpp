@@ -624,8 +624,13 @@ void IGameController::Tick()
 		}
 	}
 
-	/*// do team-balancing
-	if (IsTeamplay() && m_UnbalancedTick != -1 && Server()->Tick() > m_UnbalancedTick+g_Config.m_SvTeambalanceTime*Server()->TickSpeed()*60)
+	/*
+	// game is Paused
+	if(GameServer()->m_World.m_Paused)
+		++m_RoundStartTick;
+
+	// do team-balancing
+	if(IsTeamplay() && m_UnbalancedTick != -1 && Server()->Tick() > m_UnbalancedTick+g_Config.m_SvTeambalanceTime*Server()->TickSpeed()*60)
 	{
 		GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", "Balancing teams");
 
@@ -684,6 +689,13 @@ void IGameController::Tick()
 	{
 		for(int i = 0; i < MAX_CLIENTS; ++i)
 		{
+		#ifdef CONF_DEBUG
+			if(g_Config.m_DbgDummies)
+			{
+				if(i >= MAX_CLIENTS-g_Config.m_DbgDummies)
+					break;
+			}
+		#endif
 			if(GameServer()->m_apPlayers[i] && GameServer()->m_apPlayers[i]->GetTeam() != TEAM_SPECTATORS && !Server()->IsAuthed(i))
 			{
 				if(Server()->Tick() > GameServer()->m_apPlayers[i]->m_LastActionTick+g_Config.m_SvInactiveKickTime*Server()->TickSpeed()*60)
@@ -754,7 +766,7 @@ void IGameController::Snap(int SnappingClient)
 
 	CCharacter *pChr;
 	CPlayer *pPlayer = GameServer()->m_apPlayers[SnappingClient];
-	if(pPlayer && pPlayer->m_GameTimerTime && SnappingClient >= 0)
+	if(pPlayer && (pPlayer->m_TimerType == 0 || pPlayer->m_TimerType == 2) && SnappingClient >= 0)
 		if((pChr = pPlayer->GetCharacter()))
 			pGameInfoObj->m_RoundStartTick = (pChr->m_DDRaceState == DDRACE_STARTED)?pChr->m_StartTime:m_RoundStartTick;
 }

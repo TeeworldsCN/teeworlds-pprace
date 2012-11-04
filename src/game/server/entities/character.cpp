@@ -754,6 +754,20 @@ void CCharacter::TickDefered()
 	}
 }
 
+void CCharacter::TickPaused()
+{
+	++m_AttackTick;
+	++m_DamageTakenTick;
+	++m_Ninja.m_ActivationTick;
+	++m_ReckoningTick;
+	if(m_LastAction != -1)
+		++m_LastAction;
+	if(m_aWeapons[m_ActiveWeapon].m_AmmoRegenStart > -1)
+		++m_aWeapons[m_ActiveWeapon].m_AmmoRegenStart;
+	if(m_EmoteStop > -1)
+		++m_EmoteStop;
+}
+
 bool CCharacter::IncreaseHealth(int Amount)
 {
 	if(m_Health >= 10)
@@ -800,6 +814,7 @@ void CCharacter::Die(int Killer, int Weapon)
 	GameServer()->m_World.RemoveEntity(this);
 	GameServer()->m_World.m_Core.m_apCharacters[m_pPlayer->GetCID()] = 0;
 	GameServer()->CreateDeath(m_Pos, m_pPlayer->GetCID(), Teams()->TeamMask(Team(), -1, m_pPlayer->GetCID()));
+
 	Teams()->SetForceCharacterTeam(m_pPlayer->GetCID(), 0);
 	
 	//PPRace+
@@ -1039,7 +1054,7 @@ void CCharacter::HandleBroadcast()
 		GameServer()->SendBroadcast(aBroadcast, m_pPlayer->GetCID());
 		m_LastBroadcast = Server()->Tick();
 	}
-	else if (m_pPlayer->m_BroadcastTime && m_DDRaceState == DDRACE_STARTED && m_LastBroadcast + Server()->TickSpeed() * g_Config.m_SvTimeInBroadcastInterval <= Server()->Tick())
+	else if ((m_pPlayer->m_TimerType == 1 || m_pPlayer->m_TimerType == 2) && m_DDRaceState == DDRACE_STARTED && m_LastBroadcast + Server()->TickSpeed() * g_Config.m_SvTimeInBroadcastInterval <= Server()->Tick())
 	{
 		char aBuftime[64];
 		int IntTime = (int)((float)(Server()->Tick() - m_StartTime) / ((float)Server()->TickSpeed()));
@@ -1304,6 +1319,7 @@ void CCharacter::HandleTiles(int Index)
 				GameServer()->SendChatTarget(GetPlayer()->GetCID(),"Server admin requires you to be in a team and with other tees to start");
 				m_LastStartWarning = Server()->Tick();
 			}
+			Die(GetPlayer()->GetCID(), WEAPON_WORLD);
 			CanBegin = false;
 		}
 		if(CanBegin)
@@ -1649,6 +1665,7 @@ void CCharacter::Pause(bool Pause)
 	}
 	else
 	{
+		m_Core.m_Vel = vec2(0,0);
 		GameServer()->m_World.m_Core.m_apCharacters[m_pPlayer->GetCID()] = &m_Core;
 		GameServer()->m_World.InsertEntity(this);
 	}
@@ -1672,6 +1689,7 @@ void CCharacter::DDRaceInit()
 	m_EndlessHook = g_Config.m_SvEndlessDrag;
 	m_Hit = g_Config.m_SvHit ? HIT_ALL : DISABLE_HIT_GRENADE|DISABLE_HIT_HAMMER|DISABLE_HIT_RIFLE|DISABLE_HIT_SHOTGUN;
 	Teams()->m_Core.SetSolo(m_pPlayer->GetCID(), false);
+	Teams()->SetForceCharacterTeam(m_pPlayer->GetCID(), 0);
 }
 
 //PPRace+
